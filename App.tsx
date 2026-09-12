@@ -26,7 +26,7 @@ function App() {
           style={({pressed}) => [styles.drawerTab, pressed && styles.drawerTabPressed]}>
           <Text style={styles.drawerTabArrow}>›</Text>
         </Pressable>
-        <Drawer visible={drawerOpen} onClose={() => setDrawerOpen(false)} onItemPress={() => setDrawerOpen(false)} />
+        <Drawer visible={drawerOpen} onClose={() => setDrawerOpen(false)} />
       </SafeAreaView>
     </SafeAreaProvider>
   );
