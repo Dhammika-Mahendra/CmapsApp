@@ -10,15 +10,24 @@ import {Pressable, StatusBar, StyleSheet, Text, View} from 'react-native';
 import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 import Drawer from './components/Drawer';
 import Map from './components/Map';
+import {CHIP_LAYER_ACTIONS, INITIAL_MAP_LAYERS, MapLayerState} from './components/mapLayers';
 
 function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [mapLayers, setMapLayers] = useState<MapLayerState>(INITIAL_MAP_LAYERS);
+
+  const handleOptionChange = (chipId: string, enabled: boolean) => {
+    const layerId = CHIP_LAYER_ACTIONS[chipId];
+    if (layerId) {
+      setMapLayers(current => ({...current, [layerId]: enabled}));
+    }
+  };
 
   return (
     <SafeAreaProvider>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
-        <Map />
+        <Map layers={mapLayers} />
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Open navigation menu"
@@ -26,7 +35,7 @@ function App() {
           style={({pressed}) => [styles.drawerTab, pressed && styles.drawerTabPressed]}>
           <Text style={styles.drawerTabArrow}>›</Text>
         </Pressable>
-        <Drawer visible={drawerOpen} onClose={() => setDrawerOpen(false)} />
+        <Drawer visible={drawerOpen} onClose={() => setDrawerOpen(false)} onOptionChange={handleOptionChange} />
       </SafeAreaView>
     </SafeAreaProvider>
   );

@@ -1,34 +1,38 @@
-import React, {useMemo} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {WebView} from 'react-native-webview';
+import {MapLayerState} from './mapLayers';
 
-function Map() {
-  const html = useMemo(
-    () => `<!doctype html>
-<html><head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <style>html,body,#map{height:100%;width:100%;margin:0;background:#e5eaed}.leaflet-control-container{display:none}</style>
-</head><body><div id="map"></div>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    const map = L.map('map', {zoomControl:false, attributionControl:false}).setView([6.9271, 79.8612], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      minZoom: 2,
-      subdomains: 'abc'
-    }).addTo(map);
-  </script>
-</body></html>`,
-    [],
-  );
+type MapProps = {layers: MapLayerState};
+const localMapUri = 'file:///android_asset/map.html';
+
+function Map({layers}: MapProps) {
+  const webViewRef = useRef<any>(null);
+  const [mapReady, setMapReady] = useState(false);
+
+  useEffect(() => {
+    if (!mapReady) return;
+    const message = JSON.stringify({
+      layerId: 'local-admin',
+      visible: layers['local-admin'],
+    });
+    webViewRef.current?.injectJavaScript(
+      `window.setMapLayerVisibility && window.setMapLayerVisibility(${message}); true;`,
+    );
+  }, [layers, mapReady]);
 
   return (
     <View style={styles.map}>
       <WebView
-        source={{html}}
+        ref={webViewRef}
+        source={{uri: localMapUri}}
+        onLoadEnd={() => setMapReady(true)}
+        onMessage={event => console.warn('Map layer:', event.nativeEvent.data)}
         javaScriptEnabled
         domStorageEnabled
+        allowFileAccess
+        allowFileAccessFromFileURLs
+        allowUniversalAccessFromFileURLs
         originWhitelist={['*']}
         style={styles.webView}
       />
