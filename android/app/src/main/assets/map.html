@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+      html, body, #map { height: 100%; width: 100%; margin: 0; background: #e5eaed; }
+      .leaflet-control-container { display: none; }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      const map = L.map('map', {zoomControl: false, attributionControl: false})
+        .setView([6.9271, 79.8612], 12);
+      const renderedLayers = {};
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        minZoom: 2,
+        subdomains: 'abc'
+      }).addTo(map);
+
+      window.setMapLayerVisibility = async ({layerId, visible}) => {
+        const existingLayer = renderedLayers[layerId];
+        if (!visible) {
+          if (existingLayer) map.removeLayer(existingLayer);
+          return;
+        }
+        if (existingLayer) {
+          existingLayer.addTo(map);
+          return;
+        }
+        if (layerId !== 'local-admin') return;
+
+        try {
+          const geoJson = await new Promise((resolve, reject) => {
+            const request = new XMLHttpRequest();
+            request.open('GET', 'file:///android_asset/Local_Admin.geojson', true);
+            request.onload = () => {
+              if (request.status !== 0 && request.status !== 200) {
+                reject(new Error('Unable to read Local_Admin.geojson'));
+                return;
+              }
+              try { resolve(JSON.parse(request.responseText)); }
+              catch (error) { reject(error); }
+            };
+            request.onerror = () => reject(new Error('Unable to read Local_Admin.geojson'));
+            request.send();
+          });
+          const layer = L.geoJSON(geoJson, {
+            style: {
+              color: '#1678b6',
+              weight: 1.4,
+              fillColor: '#35a3df',
+              fillOpacity: 0.14
+            }
+          });
+          renderedLayers[layerId] = layer;
+          layer.addTo(map);
+          window.ReactNativeWebView.postMessage(JSON.stringify({type: 'layer-status', status: 'loaded'}));
+        } catch (error) {
+          console.error('Map layer failed to load', error);
+          window.ReactNativeWebView.postMessage(JSON.stringify({type: 'layer-status', status: 'error', message: String(error)}));
+        }
+      };
+    </script>
+  </body>
+</html>
