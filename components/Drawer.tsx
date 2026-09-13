@@ -219,8 +219,8 @@ const styles = StyleSheet.create({
   chip: {
     borderWidth: 1,
     borderColor: '#d8e5eb',
-    borderRadius: 16,
-    paddingVertical: 5,
+    borderRadius: 15,
+    paddingVertical: 3,
     paddingHorizontal: 10,
     backgroundColor: '#ffffff',
   },

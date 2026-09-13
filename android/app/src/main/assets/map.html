@@ -42,7 +42,7 @@
           geoJsonPath = 'file:///android_asset/Local_Admin.geojson';
           style = {
             color: '#1678b6',
-            weight: 1.4,
+            weight: 1,
             fillColor: '#35a3df',
             fillOpacity: 0.14
           };
@@ -50,9 +50,17 @@
           geoJsonPath = 'file:///android_asset/Local_Gov.geojson';
           style = {
             color: '#2e7d32',
-            weight: 1.2,
+            weight: 1,
             fillColor: '#81c784',
             fillOpacity: 0.18
+          };
+        } else if (layerId === 'col-post') {
+          geoJsonPath = 'file:///android_asset/Col_post.geojson';
+          style = {
+            color: '#8e24aa',
+            weight: 1,
+            fillColor: '#ce93d8',
+            fillOpacity: 0.16
           };
         } else {
           return;
