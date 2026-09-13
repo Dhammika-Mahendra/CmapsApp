@@ -12,13 +12,13 @@ function Map({layers}: MapProps) {
 
   useEffect(() => {
     if (!mapReady) return;
-    const message = JSON.stringify({
-      layerId: 'local-admin',
-      visible: layers['local-admin'],
+
+    Object.entries(layers).forEach(([layerId, visible]) => {
+      const message = JSON.stringify({layerId, visible});
+      webViewRef.current?.injectJavaScript(
+        `window.setMapLayerVisibility && window.setMapLayerVisibility(${message}); true;`,
+      );
     });
-    webViewRef.current?.injectJavaScript(
-      `window.setMapLayerVisibility && window.setMapLayerVisibility(${message}); true;`,
-    );
   }, [layers, mapReady]);
 
   return (
