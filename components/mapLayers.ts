@@ -1,11 +1,13 @@
-export type MapLayerId = 'local-admin';
+export type MapLayerId = 'local-admin' | 'local-gov';
 
 export type MapLayerState = Record<MapLayerId, boolean>;
 
 export const INITIAL_MAP_LAYERS: MapLayerState = {
   'local-admin': false,
+  'local-gov': false,
 };
 
 export const CHIP_LAYER_ACTIONS: Record<string, MapLayerId | undefined> = {
   '11': 'local-admin',
+  '21': 'local-gov',
 };
