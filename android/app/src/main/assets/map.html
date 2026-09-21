@@ -17,32 +17,32 @@
       const renderedLayers = {};
 
       const localAdminColors = [
-  { name: "Ampara", color: "#e11ac7" },
-  { name: "Anuradhapura", color: "#e11ac7" },
-  { name: "Badulla", color: "#1f8b49" },
-  { name: "Batticaloa", color: "#0ecffc" },
-  { name: "Colombo", color: "#e11ac7" },
-  { name: "Galle", color: "#0ecffc" },
-  { name: "Gampaha", color: "#88a4bc" },
-  { name: "Hambantota", color: "#0ecffc" },
-  { name: "Jaffna", color: "#88a4bc" },
-  { name: "Kalutara", color: "#a4ff24" },
-  { name: "Kandy", color: "#88a4bc" },
-  { name: "Kegalle", color: "#0ecffc" },
-  { name: "Kilinochchi", color: "#e11ac7" },
-  { name: "Kurunegala", color: "#a4ff24" },
-  { name: "Mannar", color: "#88a4bc" },
-  { name: "Matale", color: "#0ecffc" },
-  { name: "Matara", color: "#e11ac7" },
-  { name: "Monaragala", color: "#a4ff24" },
-  { name: "Mullaitivu", color: "#0ecffc" },
-  { name: "Nuwara Eliya", color: "#e11ac7" },
-  { name: "Polonnaruwa", color: "#88a4bc" },
-  { name: "Puttalam", color: "#0ecffc" },
-  { name: "Ratnapura", color: "#88a4bc" },
-  { name: "Trincomalee", color: "#a4ff24" },
-  { name: "Vavuniya", color: "#1f8b49" }
-];
+        { name: "Ampara", color: "#e11ac7" },
+        { name: "Anuradhapura", color: "#e11ac7" },
+        { name: "Badulla", color: "#1f8b49" },
+        { name: "Batticaloa", color: "#0ecffc" },
+        { name: "Colombo", color: "#e11ac7" },
+        { name: "Galle", color: "#0ecffc" },
+        { name: "Gampaha", color: "#88a4bc" },
+        { name: "Hambantota", color: "#0ecffc" },
+        { name: "Jaffna", color: "#88a4bc" },
+        { name: "Kalutara", color: "#a4ff24" },
+        { name: "Kandy", color: "#88a4bc" },
+        { name: "Kegalle", color: "#0ecffc" },
+        { name: "Kilinochchi", color: "#e11ac7" },
+        { name: "Kurunegala", color: "#a4ff24" },
+        { name: "Mannar", color: "#88a4bc" },
+        { name: "Matale", color: "#0ecffc" },
+        { name: "Matara", color: "#e11ac7" },
+        { name: "Monaragala", color: "#a4ff24" },
+        { name: "Mullaitivu", color: "#0ecffc" },
+        { name: "Nuwara Eliya", color: "#e11ac7" },
+        { name: "Polonnaruwa", color: "#88a4bc" },
+        { name: "Puttalam", color: "#0ecffc" },
+        { name: "Ratnapura", color: "#88a4bc" },
+        { name: "Trincomalee", color: "#a4ff24" },
+        { name: "Vavuniya", color: "#1f8b49" }
+      ];
 
       const defaultLocalAdminColor = '#35a3df';
 
@@ -61,6 +61,43 @@
           weight: 1,
           fillColor: color,
           fillOpacity: 0.18,
+        };
+      };
+
+      const colPostColors = [ 
+        { name: 'Slave Island', color: '#B7E78C' },
+        { name: 'Kollupitiya', color: '#505DEA' },
+        { name: 'Bambalapitiya', color: '#0DB0C9' },
+        { name: 'Narahenpita, Havelock, Kirulapona N', color: '#6EE765' },
+        { name: 'Wellawatta, Pamankada, Kirulapona S', color: '#9673E2' },
+        { name: 'Cinnamon Garden', color: '#34e8eb' },
+        { name: 'Borella', color: '#E80FCF' },
+        { name: 'Dematagoda', color: '#A851CA' },
+        { name: 'Maradana, Panchikawatte', color: '#D63643' },
+        { name: 'Pettah', color: '#D48966' },
+        { name: 'Aluthkade', color: '#13D9A4' },
+        { name: 'Kotahena, Bloemendhal', color: '#70A1DA' },
+        { name: 'Grandpass', color: '#CEA337' },
+        { name: 'Mattakkuliya, Modara, Madampitiya', color: '#34e8eb' }
+    ];      
+
+      const defaultColPostColor = '#ce93d8';
+
+      const colorForColPost = name => {
+        const normalizedName = (name || '').trim();
+        const match = colPostColors.find(entry => entry.name === normalizedName);
+
+        return match ? match.color : defaultColPostColor;
+      };
+
+      const colPostStyle = feature => {
+        const color = colorForColPost(feature?.properties?.name);
+
+        return {
+          color,
+          weight: 1,
+          fillColor: color,
+          fillOpacity: 0.16,
         };
       };
 
@@ -99,12 +136,7 @@
           };
         } else if (layerId === 'col-post') {
           geoJsonPath = 'file:///android_asset/Col_post.geojson';
-          style = {
-            color: '#8e24aa',
-            weight: 1,
-            fillColor: '#ce93d8',
-            fillOpacity: 0.16
-          };
+          style = colPostStyle;
         } else {
           return;
         }
