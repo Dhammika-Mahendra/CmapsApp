@@ -51,7 +51,7 @@ function Drawer({ visible, onClose, onOptionChange }: DrawerProps) {
   const translateX = useRef(new Animated.Value(-drawerWidth)).current;
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [enabledOptions, setEnabledOptions] = useState<Record<string, boolean>>(
-    {},
+    {'12': true, '32': true},
   );
 
   useEffect(() => {

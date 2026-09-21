@@ -3,10 +3,18 @@ import {StyleSheet, View} from 'react-native';
 import {WebView} from 'react-native-webview';
 import {MapLayerState} from './mapLayers';
 
-type MapProps = {layers: MapLayerState};
+type MapProps = {
+  layers: MapLayerState;
+  localAdminFeatureColorsEnabled: boolean;
+  colPostFeatureColorsEnabled: boolean;
+};
 const localMapUri = 'file:///android_asset/map.html';
 
-function Map({layers}: MapProps) {
+function Map({
+  layers,
+  localAdminFeatureColorsEnabled,
+  colPostFeatureColorsEnabled,
+}: MapProps) {
   const webViewRef = useRef<any>(null);
   const [mapReady, setMapReady] = useState(false);
 
@@ -20,6 +28,24 @@ function Map({layers}: MapProps) {
       );
     });
   }, [layers, mapReady]);
+
+  useEffect(() => {
+    if (!mapReady) return;
+
+    const message = JSON.stringify({enabled: localAdminFeatureColorsEnabled});
+    webViewRef.current?.injectJavaScript(
+      `window.setLocalAdminFeatureColorsEnabled && window.setLocalAdminFeatureColorsEnabled(${message}); true;`,
+    );
+  }, [localAdminFeatureColorsEnabled, mapReady]);
+
+  useEffect(() => {
+    if (!mapReady) return;
+
+    const message = JSON.stringify({enabled: colPostFeatureColorsEnabled});
+    webViewRef.current?.injectJavaScript(
+      `window.setColPostFeatureColorsEnabled && window.setColPostFeatureColorsEnabled(${message}); true;`,
+    );
+  }, [colPostFeatureColorsEnabled, mapReady]);
 
   return (
     <View style={styles.map}>
