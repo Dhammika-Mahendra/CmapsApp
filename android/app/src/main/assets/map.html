@@ -15,6 +15,12 @@
       const map = L.map('map', {zoomControl: false, attributionControl: false})
         .setView([6.9271, 79.8612], 12);
       const renderedLayers = {};
+      const layerVisibility = {
+        'local-admin': false,
+        'local-gov': false,
+        'col-post': false,
+      };
+      let localAdminFeatureColorsEnabled = false;
 
       const localAdminColors = [
         { name: "Ampara", color: "#e11ac7" },
@@ -64,6 +70,13 @@
         };
       };
 
+      const localAdminUniformStyle = {
+        color: '#1678b6',
+        weight: 1,
+        fillColor: '#35a3df',
+        fillOpacity: 0.18,
+      };
+
       const colPostColors = [ 
         { name: 'Slave Island', color: '#B7E78C' },
         { name: 'Kollupitiya', color: '#505DEA' },
@@ -101,6 +114,89 @@
         };
       };
 
+      const clearLayer = layerId => {
+        const existingLayer = renderedLayers[layerId];
+
+        if (existingLayer) {
+          map.removeLayer(existingLayer);
+          delete renderedLayers[layerId];
+        }
+      };
+
+      const buildLayerStyle = layerId => {
+        if (layerId === 'local-admin') {
+          return localAdminFeatureColorsEnabled ? localAdminStyle : localAdminUniformStyle;
+        }
+
+        if (layerId === 'local-gov') {
+          return {
+            color: '#2e7d32',
+            weight: 1,
+            fillColor: '#81c784',
+            fillOpacity: 0.18
+          };
+        }
+
+        if (layerId === 'col-post') {
+          return colPostStyle;
+        }
+
+        return null;
+      };
+
+      const loadLayer = async layerId => {
+        let geoJsonPath = '';
+
+        if (layerId === 'local-admin') {
+          geoJsonPath = 'file:///android_asset/Local_Admin.geojson';
+        } else if (layerId === 'local-gov') {
+          geoJsonPath = 'file:///android_asset/Local_Gov.geojson';
+        } else if (layerId === 'col-post') {
+          geoJsonPath = 'file:///android_asset/Col_post.geojson';
+        } else {
+          return;
+        }
+
+        const geoJson = await new Promise((resolve, reject) => {
+          const request = new XMLHttpRequest();
+          request.open('GET', geoJsonPath, true);
+          request.onload = () => {
+            if (request.status !== 0 && request.status !== 200) {
+              reject(new Error(`Unable to read ${geoJsonPath}`));
+              return;
+            }
+            try {
+              resolve(JSON.parse(request.responseText));
+            } catch (error) {
+              reject(error);
+            }
+          };
+          request.onerror = () => reject(new Error(`Unable to read ${geoJsonPath}`));
+          request.send();
+        });
+
+        const style = buildLayerStyle(layerId);
+        if (!style) return;
+
+        clearLayer(layerId);
+
+        const layer = L.geoJSON(geoJson, { style });
+        renderedLayers[layerId] = layer;
+
+        if (layerVisibility[layerId]) {
+          layer.addTo(map);
+        }
+      };
+
+      const refreshLayer = async layerId => {
+        if (!layerVisibility[layerId]) {
+          clearLayer(layerId);
+          return;
+        }
+
+        await loadLayer(layerId);
+      };
+
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         minZoom: 2,
@@ -108,63 +204,27 @@
       }).addTo(map);
 
       window.setMapLayerVisibility = async ({layerId, visible}) => {
-        const existingLayer = renderedLayers[layerId];
+        layerVisibility[layerId] = visible;
 
         if (!visible) {
-          if (existingLayer) map.removeLayer(existingLayer);
-          return;
-        }
-
-        if (existingLayer) {
-          existingLayer.addTo(map);
-          return;
-        }
-
-        let geoJsonPath = '';
-        let style = {};
-
-        if (layerId === 'local-admin') {
-          geoJsonPath = 'file:///android_asset/Local_Admin.geojson';
-          style = localAdminStyle;
-        } else if (layerId === 'local-gov') {
-          geoJsonPath = 'file:///android_asset/Local_Gov.geojson';
-          style = {
-            color: '#2e7d32',
-            weight: 1,
-            fillColor: '#81c784',
-            fillOpacity: 0.18
-          };
-        } else if (layerId === 'col-post') {
-          geoJsonPath = 'file:///android_asset/Col_post.geojson';
-          style = colPostStyle;
-        } else {
+          clearLayer(layerId);
           return;
         }
 
         try {
-          const geoJson = await new Promise((resolve, reject) => {
-            const request = new XMLHttpRequest();
-            request.open('GET', geoJsonPath, true);
-            request.onload = () => {
-              if (request.status !== 0 && request.status !== 200) {
-                reject(new Error(`Unable to read ${geoJsonPath}`));
-                return;
-              }
-              try {
-                resolve(JSON.parse(request.responseText));
-              } catch (error) {
-                reject(error);
-              }
-            };
-            request.onerror = () => reject(new Error(`Unable to read ${geoJsonPath}`));
-            request.send();
-          });
-
-          const layer = L.geoJSON(geoJson, { style });
-          renderedLayers[layerId] = layer;
-          layer.addTo(map);
+          await refreshLayer(layerId);
         } catch (error) {
           console.error('Map layer failed to load', error);
+        }
+      };
+
+      window.setLocalAdminFeatureColorsEnabled = async ({enabled}) => {
+        localAdminFeatureColorsEnabled = enabled;
+
+        try {
+          await refreshLayer('local-admin');
+        } catch (error) {
+          console.error('Local Admin layer failed to refresh', error);
         }
       };
     </script>
