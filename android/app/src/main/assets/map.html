@@ -16,6 +16,54 @@
         .setView([6.9271, 79.8612], 12);
       const renderedLayers = {};
 
+      const localAdminColors = [
+  { name: "Ampara", color: "#e11ac7" },
+  { name: "Anuradhapura", color: "#e11ac7" },
+  { name: "Badulla", color: "#1f8b49" },
+  { name: "Batticaloa", color: "#0ecffc" },
+  { name: "Colombo", color: "#e11ac7" },
+  { name: "Galle", color: "#0ecffc" },
+  { name: "Gampaha", color: "#88a4bc" },
+  { name: "Hambantota", color: "#0ecffc" },
+  { name: "Jaffna", color: "#88a4bc" },
+  { name: "Kalutara", color: "#a4ff24" },
+  { name: "Kandy", color: "#88a4bc" },
+  { name: "Kegalle", color: "#0ecffc" },
+  { name: "Kilinochchi", color: "#e11ac7" },
+  { name: "Kurunegala", color: "#a4ff24" },
+  { name: "Mannar", color: "#88a4bc" },
+  { name: "Matale", color: "#0ecffc" },
+  { name: "Matara", color: "#e11ac7" },
+  { name: "Monaragala", color: "#a4ff24" },
+  { name: "Mullaitivu", color: "#0ecffc" },
+  { name: "Nuwara Eliya", color: "#e11ac7" },
+  { name: "Polonnaruwa", color: "#88a4bc" },
+  { name: "Puttalam", color: "#0ecffc" },
+  { name: "Ratnapura", color: "#88a4bc" },
+  { name: "Trincomalee", color: "#a4ff24" },
+  { name: "Vavuniya", color: "#1f8b49" }
+];
+
+      const defaultLocalAdminColor = '#35a3df';
+
+      const colorForLocalAdmin = name => {
+        const normalizedName = (name || '').trim();
+        const match = localAdminColors.find(entry => entry.name === normalizedName);
+
+        return match ? match.color : defaultLocalAdminColor;
+      };
+
+      const localAdminStyle = feature => {
+        const color = colorForLocalAdmin(feature?.properties?.ADM2_EN);
+
+        return {
+          color,
+          weight: 1,
+          fillColor: color,
+          fillOpacity: 0.18,
+        };
+      };
+
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         minZoom: 2,
@@ -40,12 +88,7 @@
 
         if (layerId === 'local-admin') {
           geoJsonPath = 'file:///android_asset/Local_Admin.geojson';
-          style = {
-            color: '#1678b6',
-            weight: 1,
-            fillColor: '#35a3df',
-            fillOpacity: 0.14
-          };
+          style = localAdminStyle;
         } else if (layerId === 'local-gov') {
           geoJsonPath = 'file:///android_asset/Local_Gov.geojson';
           style = {
