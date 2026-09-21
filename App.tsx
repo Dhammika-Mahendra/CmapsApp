@@ -15,11 +15,17 @@ import {CHIP_LAYER_ACTIONS, INITIAL_MAP_LAYERS, MapLayerState} from './component
 function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [mapLayers, setMapLayers] = useState<MapLayerState>(INITIAL_MAP_LAYERS);
-  const [localAdminFeatureColorsEnabled, setLocalAdminFeatureColorsEnabled] = useState(false);
+  const [localAdminFeatureColorsEnabled, setLocalAdminFeatureColorsEnabled] = useState(true);
+  const [colPostFeatureColorsEnabled, setColPostFeatureColorsEnabled] = useState(true);
 
   const handleOptionChange = (chipId: string, enabled: boolean) => {
     if (chipId === '12') {
       setLocalAdminFeatureColorsEnabled(enabled);
+      return;
+    }
+
+    if (chipId === '32') {
+      setColPostFeatureColorsEnabled(enabled);
       return;
     }
 
@@ -33,7 +39,11 @@ function App() {
     <SafeAreaProvider>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
-        <Map layers={mapLayers} localAdminFeatureColorsEnabled={localAdminFeatureColorsEnabled} />
+        <Map
+          layers={mapLayers}
+          localAdminFeatureColorsEnabled={localAdminFeatureColorsEnabled}
+          colPostFeatureColorsEnabled={colPostFeatureColorsEnabled}
+        />
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Open navigation menu"

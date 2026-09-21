@@ -21,6 +21,7 @@
         'col-post': false,
       };
       let localAdminFeatureColorsEnabled = false;
+      let colPostFeatureColorsEnabled = false;
 
       const localAdminColors = [
         { name: "Ampara", color: "#e11ac7" },
@@ -114,6 +115,13 @@
         };
       };
 
+      const colPostUniformStyle = {
+        color: '#8e24aa',
+        weight: 1,
+        fillColor: '#ce93d8',
+        fillOpacity: 0.16,
+      };
+
       const clearLayer = layerId => {
         const existingLayer = renderedLayers[layerId];
 
@@ -138,7 +146,7 @@
         }
 
         if (layerId === 'col-post') {
-          return colPostStyle;
+          return colPostFeatureColorsEnabled ? colPostStyle : colPostUniformStyle;
         }
 
         return null;
@@ -225,6 +233,16 @@
           await refreshLayer('local-admin');
         } catch (error) {
           console.error('Local Admin layer failed to refresh', error);
+        }
+      };
+
+      window.setColPostFeatureColorsEnabled = async ({enabled}) => {
+        colPostFeatureColorsEnabled = enabled;
+
+        try {
+          await refreshLayer('col-post');
+        } catch (error) {
+          console.error('Col Post layer failed to refresh', error);
         }
       };
     </script>
